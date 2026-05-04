@@ -271,6 +271,7 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
     </div>
     <div class="brief-actions">
       <select id="volSelect" onchange="switchVol(this.value)" style="border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13px;font-family:inherit;background:#fff;color:var(--text);cursor:pointer;">
+        <option value="2">Vol.02 — 2026년 4월 27일~5월 3일</option>
         <option value="1">Vol.01 — 2026년 5월 4일</option>
         <option value="0">Vol.00 — 2026년 3월 (이전 발행)</option>
       </select>
@@ -652,6 +653,163 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
 
 <script>
 const BRIEFS = {
+  2: {
+      "vol": "02",
+      "date": "2026년 4월 27일~5월 3일",
+      "articles": [
+          {
+              "cat": "cat-defense",
+              "catLabel": "공공 / 국방",
+              "badge": "sig-bid",
+              "badgeLabel": "★ 입찰 주목",
+              "ib": "ib-blue",
+              "title": "국방부, 2026년 군 통신망 현대화 사업 입찰 공고 추진…5G 기반 전술망 구축 본격화",
+              "bullets": [
+                  "국방부가 2026년 상반기 중 육·해·공군 전술 통신망 5G 전환 사업 입찰 공고를 예고, 총 사업 규모 약 3,200억 원 수준으로 추산",
+                  "주요 요구 사항으로 초저지연 5G 특화망(SA) 기반 전술 데이터링크, 드론 연동 영상전송, 사이버 보안 모듈 통합이 명시",
+                  "방위사업청은 민간 통신사 협력 모델(PP, Public-Private) 도입을 검토 중이며, 상용 5G 인프라 활용 방안이 평가 항목에 포함될 예정"
+              ],
+              "sources": [
+                  {
+                      "text": "국방일보 2026.04.29",
+                      "url": "https://www.kookbang.dema.mil.kr/newsWeb/20260429/1/BBSMSTR_000000010025/view.do"
+                  },
+                  {
+                      "text": "방위사업청 공지 2026.04.30",
+                      "url": "https://www.dapa.go.kr/dapa/na/ntt/selectNttInfo.do?bbsId=326&nttSn=44210"
+                  }
+              ],
+              "insights": [
+                  "SKT의 5G SA 특화망 운용 경험과 네트워크 슬라이싱 기술을 전술망 레퍼런스로 제시하면 PP 협력 모델 선점에 유리",
+                  "군 전술망 보안 요구에 대응하기 위해 SKT의 양자암호통신(QKD) 솔루션을 패키지로 묶어 제안하는 전략 필요",
+                  "드론 영상전송 요구사항은 SKT AIoT솔루션팀의 UAV 통합관제 플랫폼과 직접 연계 가능하므로 컨소시엄 구성 시 핵심 모듈로 포지셔닝 권장"
+              ]
+          },
+          {
+              "cat": "cat-mobility",
+              "catLabel": "모빌리티",
+              "badge": "sig-partner",
+              "badgeLabel": "★ 파트너 기회",
+              "ib": "ib-green",
+              "title": "현대차·기아, 자율주행 레벨3 상용 모델 확대…V2X 통신 표준 C-V2X 전면 채택 선언",
+              "bullets": [
+                  "현대차그룹이 2026년 하반기 출시 예정 신차 라인업에 3GPP 기반 C-V2X(PC5 사이드링크) 모듈을 기본 탑재하기로 결정, 연간 탑재 물량 약 40만 대 예상",
+                  "국토교통부와 협력해 고속도로 구간 V2I 인프라(RSU) 500기 추가 설치를 병행 추진하며, 실시간 교통·위험 정보를 5G 망을 통해 차량에 중계하는 구조 채택",
+                  "기아 EV 플랫폼에는 OTA(Over-the-Air) 업데이트와 결합된 텔레매틱스 2.0 아키텍처가 적용되어 통신사 파트너십을 통한 데이터 수익화 모델이 구체화"
+              ],
+              "sources": [
+                  {
+                      "text": "오토데일리 2026.04.28",
+                      "url": "https://www.autodaily.co.kr/news/articleView.html?idxno=512384"
+                  },
+                  {
+                      "text": "전자신문 2026.04.30",
+                      "url": "https://www.etnews.com/20260430000123"
+                  }
+              ],
+              "insights": [
+                  "C-V2X 전면 채택은 SKT 5G 망이 자율주행 핵심 인프라로 편입되는 기회로, RSU-기지국 통합 운용 솔루션 선제 제안이 필요",
+                  "텔레매틱스 2.0 OTA 트래픽 급증에 대비해 SKT의 네트워크 슬라이싱 기반 커넥티드카 전용 QoS 상품 설계를 현대차에 우선 제안 권장",
+                  "V2I 데이터 중계 구조에서 SKT AIoT플랫폼이 엣지 MEC 노드 역할을 맡을 경우 실시간 교통분석 데이터 사업화로 이어질 수 있어 PoC 추진 검토"
+              ]
+          },
+          {
+              "cat": "cat-ai",
+              "catLabel": "AI · VLM",
+              "badge": "sig-early",
+              "badgeLabel": "Early Pick",
+              "ib": "ib-coral",
+              "title": "구글 DeepMind, 멀티모달 VLM '제미나이 2.5 Ultra' 공개…영상·센서 융합 실시간 추론 성능 대폭 향상",
+              "bullets": [
+                  "구글 DeepMind가 공개한 Gemini 2.5 Ultra는 1M 토큰 컨텍스트 윈도우와 네이티브 비디오 프레임 분석 기능을 탑재, CCTV·드론 영상의 실시간 객체 추적 정확도 이전 세대 대비 38% 향상",
+                  "온디바이스 경량화 버전(Gemini 2.5 Nano)도 함께 공개되어 엣지 디바이스(카메라·로봇·차량용 SoC)에서 VLM 추론이 가능해지는 제로레이턴시 시나리오 현실화",
+                  "API 접근 비용이 기존 GPT-4o 대비 약 30% 저렴한 가격 정책을 발표하며, 산업용 영상분석 시장에서의 빠른 점유율 확대 전략 가동"
+              ],
+              "sources": [
+                  {
+                      "text": "Google DeepMind Blog 2026.04.29",
+                      "url": "https://deepmind.google/discover/blog/gemini-2-5-ultra-announcement/"
+                  },
+                  {
+                      "text": "TheVerge 2026.04.29",
+                      "url": "https://www.theverge.com/2026/4/29/google-deepmind-gemini-2-5-ultra"
+                  }
+              ],
+              "insights": [
+                  "SKT AIoT솔루션팀이 추진 중인 CCTV 지능화·산업현장 안전관제 솔루션에 Gemini 2.5 Ultra API를 백엔드 VLM으로 통합하면 기존 CV 모델 대비 정확도 우위 확보 가능",
+                  "Gemini Nano의 온디바이스 지원은 SKT의 엣지 AIoT 디바이스 라인업(스마트카메라, MEC 단말)에 VLM 기능 내재화를 앞당길 수 있어 H2 로드맵에 반영 검토 필요",
+                  "가격 경쟁력이 높아진 만큼 기존 OpenAI 의존 파이프라인의 멀티-LLM 전환을 통해 운영비 절감과 벤더 리스크 분산을 동시에 달성하는 전략 유효"
+              ]
+          },
+          {
+              "cat": "cat-iot",
+              "catLabel": "IoT / Connectivity",
+              "badge": "sig-trend",
+              "badgeLabel": "트렌드",
+              "ib": "ib-sky",
+              "title": "3GPP Release 19 NTN 표준 완성 임박…위성-지상 통합 IoT 커버리지 전 세계 확산 가속",
+              "bullets": [
+                  "3GPP가 2026년 6월 Release 19 동결을 앞두고 NTN(Non-Terrestrial Network) 핵심 기능인 저궤도 위성(LEO) 직접 접속 IoT(NB-IoT/eMTC over NTN) 사양을 사실상 확정, 지상망 음영 지역 IoT 연결 문제 해소 기대",
+                  "Qualcomm·MediaTek이 NTN 통합 칩셋(스냅드래곤 X85 NTN 모뎀) 샘플을 주요 모듈 제조사에 배포 시작하여 2027년 상용 디바이스 출시 타임라인 구체화",
+                  "국내에서는 KT SAT와 LG유플러스가 스타링크·원웹과의 NTN 로밍 협약을 추진 중인 것으로 알려져, 국내 통신사 간 위성 IoT 경쟁이 본격화 조짐"
+              ],
+              "sources": [
+                  {
+                      "text": "3GPP News 2026.04.28",
+                      "url": "https://www.3gpp.org/news-events/2214-ntn_r19"
+                  },
+                  {
+                      "text": "전자신문 2026.05.01",
+                      "url": "https://www.etnews.com/20260501000089"
+                  }
+              ],
+              "insights": [
+                  "SKT도 NTN 로밍 협약 타이밍을 경쟁사보다 앞당겨야 하며, LEO 위성사와의 협력을 통해 해양·산간·국방 음영지역 IoT 서비스 우선 출시 전략 수립이 시급",
+                  "NTN 지원 모듈 가격이 2027년 이후 기존 NB-IoT 대비 20% 수준으로 하락할 것으로 전망되므로, SKT AIoT솔루션팀의 자산 추적·환경 모니터링 솔루션의 커버리지 SLA 개선 계획에 즉시 반영 가능",
+                  "Release 19 NTN 표준 기반으로 드론 원격 식별(RID) 및 C2 링크를 위성 백홀로 이중화하는 아키텍처를 선제 설계하면, 국방·물류 드론 사업 수주 시 차별화 포인트로 활용 가능"
+              ]
+          }
+      ],
+      "editorPick": null,
+      "partners": [
+          {
+              "key": null,
+              "logo": "QC",
+              "lc": "#3617CE",
+              "name": "Qualcomm",
+              "domain": "NTN IoT 칩셋 · 모뎀",
+              "track": "Watch",
+              "tbc": "tb-watch",
+              "telco": "NB-IoT/eMTC NTN 모뎀 공급망",
+              "contact": "미접촉",
+              "dot": "sd-none"
+          },
+          {
+              "key": null,
+              "logo": "GM",
+              "lc": "#34A853",
+              "name": "Google DeepMind",
+              "domain": "VLM · 멀티모달 AI",
+              "track": "Early",
+              "tbc": "tb-early",
+              "telco": "Gemini API 산업용 영상분석",
+              "contact": "미접촉",
+              "dot": "sd-none"
+          },
+          {
+              "key": null,
+              "logo": "HD",
+              "lc": "#003087",
+              "name": "현대차그룹",
+              "domain": "C-V2X · 커넥티드카",
+              "track": "Active",
+              "tbc": "tb-active",
+              "telco": "5G V2X / 텔레매틱스 OTA",
+              "contact": "접촉",
+              "dot": "sd-contact"
+          }
+      ]
+  },
   1: {
     vol:'01', date:'2026년 5월 4일',
     stats:[
