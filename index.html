@@ -240,21 +240,23 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
   <div class="brief-hero">
     <div>
       <h1>AIoT Signal Weekly</h1>
-      <div class="week-label"><span>Vol.01</span>2026년 5월 4일 · SKT AIoT솔루션팀 내부 배포</div>
+      <div class="week-label">
+        <span id="volBadge">Vol.01</span>
+        <span id="volDate">2026년 5월 4일 · SKT AIoT솔루션팀 내부 배포</span>
+      </div>
     </div>
     <div class="brief-actions">
-      <button class="btn-outline">에디터 Pick 추가</button>
+      <select id="volSelect" onchange="switchVol(this.value)" style="border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:13px;font-family:inherit;background:#fff;color:var(--text);cursor:pointer;">
+        <option value="1">Vol.01 — 2026년 5월 4일</option>
+        <option value="0">Vol.00 — 2026년 3월 (이전 발행)</option>
+      </select>
+      <button class="btn-outline" onclick="openEditorPick()">에디터 Pick 추가</button>
       <button class="btn-primary">Confluence 저장</button>
     </div>
   </div>
-  <div class="stat-grid">
-    <div class="stat-box"><div class="stat-label">이번 주 분야</div><div class="stat-value">4개</div><div class="stat-sub">공공/국방 · 모빌리티 · AI · IoT</div></div>
-    <div class="stat-box"><div class="stat-label">입찰 주목 토픽</div><div class="stat-value" style="color:var(--red);">3건</div><div class="stat-sub">즉시 액션 필요</div></div>
-    <div class="stat-box"><div class="stat-label">신규 파트너 후보</div><div class="stat-value" style="color:var(--green);">5개사</div><div class="stat-sub">Active 2 · Watch 1 · Early 2</div></div>
-    <div class="stat-box"><div class="stat-label">Editor's Pick</div><div class="stat-value">1건</div><div class="stat-sub">Lily 직접 선정</div></div>
-  </div>
+  <div class="stat-grid" id="statGrid"></div>
   <div class="brief-layout">
-    <div class="article-list">
+    <div class="article-list" id="articleList"></div>
 
       <div class="article-card">
         <div class="article-inner">
@@ -350,38 +352,9 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
     </div>
 
     <div class="brief-sidebar">
-      <div class="panel">
-        <div class="sb-title">이번 주 신규 파트너 후보<span>5개사</span></div>
-        <div class="mini-card" onclick="openDrawer('aero')">
-          <div class="mini-head">
-            <div class="mini-logo" style="background:#3617CE;">AV</div>
-            <div>
-              <div style="display:flex;align-items:center;gap:6px;"><div class="mini-name">(주)에어로비전</div><span class="track-badge tb-active">Active</span></div>
-              <div class="mini-domain">공공/국방 · AI 드론 관제</div>
-            </div>
-          </div>
-          <div class="mini-kv"><div class="k">Telco 접점</div><div>Private 5G · 엣지 관제</div><div class="k">컨택 상태</div><div><span class="status-dot sd-none"></span>미접촉</div></div>
-        </div>
-        <div class="mini-card" onclick="openDrawer('neuro')">
-          <div class="mini-head">
-            <div class="mini-logo" style="background:#0F6E56;">NL</div>
-            <div>
-              <div style="display:flex;align-items:center;gap:6px;"><div class="mini-name">(주)뉴로링크</div><span class="track-badge tb-early">Early</span></div>
-              <div class="mini-domain">AI · 엣지 AI 칩셋</div>
-            </div>
-          </div>
-          <div class="mini-kv"><div class="k">Telco 접점</div><div>MEC · 온디바이스 AI</div><div class="k">컨택 상태</div><div><span class="status-dot sd-contact"></span>후보 검토</div></div>
-        </div>
-        <div class="mini-card">
-          <div class="mini-head">
-            <div class="mini-logo" style="background:#185FA5;">SW</div>
-            <div>
-              <div style="display:flex;align-items:center;gap:6px;"><div class="mini-name">센서웨이브(주)</div><span class="track-badge tb-watch">Watch</span></div>
-              <div class="mini-domain">IoT · 산업용 게이트웨이</div>
-            </div>
-          </div>
-          <div class="mini-kv"><div class="k">Telco 접점</div><div>LPWA · 5G 특화망</div><div class="k">컨택 상태</div><div><span class="status-dot sd-none"></span>미접촉</div></div>
-        </div>
+      <div class="panel" id="sidebarPartners">
+        <div class="sb-title">이번 주 신규 파트너 후보<span id="sidebarCount"></span></div>
+        <div id="sidebarCards"></div>
         <button class="btn-outline" style="width:100%;font-size:12px;margin-top:4px;" onclick="switchTab('partner')">Partner DB 전체 보기 →</button>
       </div>
       <div class="panel">
@@ -639,23 +612,163 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
 </div>
 
 <script>
-// 로고 도메인 매핑 (실제 회사 도메인 없으면 null)
-const LOGO_DOMAINS = {
-  aero: null,
-  neuro: null,
-  mobilityon: null,
-  sensorwave: null,
-  securitycore: null,
-  energygrid: null,
+const BRIEFS = {
+  1: {
+    vol:'01', date:'2026년 5월 4일',
+    stats:[
+      {label:'이번 주 분야',value:'4개',sub:'공공/국방 · 모빌리티 · AI · IoT',color:''},
+      {label:'입찰 주목 토픽',value:'3건',sub:'즉시 액션 필요',color:'var(--red)'},
+      {label:'신규 파트너 후보',value:'5개사',sub:'Active 2 · Watch 1 · Early 2',color:'var(--green)'},
+      {label:"Editor's Pick",value:'1건',sub:'Lily 직접 선정',color:''}
+    ],
+    articles:[
+      {cat:'cat-defense',catLabel:'공공 / 국방',badge:'sig-bid',badgeLabel:'★ 입찰 주목',ib:'ib-blue',
+       title:'국방부, 전술 통신망 5G 전환 로드맵 발표',
+       bullets:['2027년까지 육군 주요 부대 Private 5G 망 구축 예산 3,200억 원 배정 예정','단말·솔루션 공급사 선정 입찰 공고 하반기 예상, 국내 제조사 우선 조건 포함','지휘통제·전장관리 시스템과 연동 요구사항이 RFQ에 포함될 전망'],
+       sources:[{text:'국방일보 2026-04-28',url:'#'},{text:'방위사업청 보도자료',url:'#'}],
+       insights:['Private 5G 회선 공급 주체로 통신사가 적시된 최초 국방 사업 — 선점 기회','단말·솔루션 파트너 확보가 수주 가부를 결정할 가능성 높음','보안 인증(CC, KCMVP) 보유 파트너사 DB 사전 확보 필요']},
+      {cat:'cat-mobility',catLabel:'모빌리티',badge:'sig-partner',badgeLabel:'★ 파트너 기회',ib:'ib-green',
+       title:'현대차, SDV 플랫폼 파트너사 공개 모집 시작',
+       bullets:['OTA 업데이트·차량 데이터 플랫폼 분야 협력사 20개사 선정 목표','eSIM 기반 연결성 솔루션 보유 기업 우대 조건 명시','1차 서류 마감 6월 15일, 파트너 계약 후 2027년 양산 모델 적용 예정'],
+       sources:[{text:'오토헤럴드 2026-05-01',url:'#'}],
+       insights:['eSIM 플랫폼 공급사로 직접 참여 또는 파트너사와 공동제안 검토 가능','차량 데이터 전송망 — LTE/5G 회선 번들 계약 구조로 접근 여지','SDV 파트너 DB 선제 구축 후 간접 채널 확보 전략']},
+      {cat:'cat-ai',catLabel:'AI · VLM',badge:'sig-early',badgeLabel:'Early Pick',ib:'ib-coral',
+       title:'엣지 AI 스타트업 시리즈 B 300억 유치 — 온디바이스 VLM 독자 개발',
+       bullets:['온디바이스 경량 VLM 모델 독자 개발, 영상처리 지연시간 기존 대비 60% 단축','아직 공공 레퍼런스는 없으나 제조·물류 현장 PoC 3건 진행 중','통신사와 MEC 연동 실증 의향 공개 언급 — 선제 컨택 여지'],
+       sources:[{text:'벤처스퀘어 2026-04-29',url:'#'}],
+       insights:['MEC + 엣지 AI 결합 레퍼런스 선점 기회 — 경쟁사 접근 전 컨택 권장','지금은 Watch/Early 트랙 — 분기 내 관계 형성이 목표','Partner DB Early 트랙 등록 후 PoC 결과 모니터링 권장']},
+      {cat:'cat-iot',catLabel:'IoT / Connectivity',badge:'sig-trend',badgeLabel:'트렌드',ib:'ib-sky',
+       title:'산단 스마트팩토리 LPWA 전환 수요 급증 — 전년 대비 40% 증가',
+       bullets:['중소 제조업 IoT 보조금 확대로 NB-IoT·LTE-M 기반 전환 수요 급증','게이트웨이·센서 공급사 납기 지연 이슈 — 검증된 공급망 보유사 희소','단일 현장 수백 개 단말 연결 수요 → 회선 대량 계약 기회'],
+       sources:[{text:'IoT조선 2026-04-27',url:'#'}],
+       insights:['LPWA 회선 + 게이트웨이 공급사 번들 제안 — Partner DB 즉시 활용 가능','납기 안정적인 게이트웨이 공급사 Active 트랙 확보가 수주 핵심','스마트팩토리 보조금 일정과 연계한 영업 타이밍 선점 필요']}
+    ],
+    editorPick:{title:'AI 인프라 전쟁: 통신사가 주도할 다음 기회',source:'Deloitte Insights · 2026.04.30',desc:'AI 인프라 수요 급증 속에서 데이터센터 전략과 파트너십 모델을 제시. 통신사가 엣지-코어-클라우드 연결망의 핵심 주체로 부상할 수 있다는 분석.',url:'#'},
+    partners:[
+      {key:'aero',logo:'AV',lc:'#3617CE',name:'(주)에어로비전',domain:'공공/국방 · AI 드론 관제',track:'Active',tbc:'tb-active',telco:'Private 5G · 엣지 관제',contact:'미접촉',dot:'sd-none'},
+      {key:'neuro',logo:'NL',lc:'#0F6E56',name:'(주)뉴로링크',domain:'AI · 엣지 AI 칩셋',track:'Early',tbc:'tb-early',telco:'MEC · 온디바이스 AI',contact:'후보 검토',dot:'sd-contact'},
+      {key:null,logo:'SW',lc:'#185FA5',name:'센서웨이브(주)',domain:'IoT · 산업용 게이트웨이',track:'Watch',tbc:'tb-watch',telco:'LPWA · 5G 특화망',contact:'미접촉',dot:'sd-none'}
+    ]
+  },
+  0: {
+    vol:'00', date:'2026년 3월',
+    stats:[
+      {label:'이번 달 분야',value:'4개',sub:'공공/국방 · 모빌리티 · AI · IoT',color:''},
+      {label:'입찰 주목 토픽',value:'2건',sub:'즉시 액션 필요',color:'var(--red)'},
+      {label:'신규 파트너 후보',value:'4개사',sub:'Active 1 · Watch 2 · Early 1',color:'var(--green)'},
+      {label:"Editor's Pick",value:'1건',sub:'Lily 직접 선정',color:''}
+    ],
+    articles:[
+      {cat:'cat-defense',catLabel:'공공 / 국방',badge:'sig-bid',badgeLabel:'★ 입찰 주목',ib:'ib-blue',
+       title:'국방부, 제1차 국방 AI 활용 아이디어 경연대회 — AI 전장 적용 본격화 신호',
+       bullets:['3월 31일 전쟁기념관에서 국방 AI 활용 아이디어 경연대회 개최, 310명 참가','최우수상 수상작 "MIRAGE-K": AI가 전술지휘소 위치를 실시간 추천하는 드론 대응 시스템','국방부, 분기별 경연 연간 4회 운영 계획 — AI 전장 도입 가속화 예고'],
+       sources:[{text:'정책브리핑 2026-03-31',url:'https://m.korea.kr/briefing/pressReleaseView.do?newsId=156752582'}],
+       insights:['국방 AI 도입이 아이디어 경연을 넘어 실증·조달 단계로 전환되는 시점','드론 관제·지휘통제 분야 Private 5G + AI 솔루션 번들 수요 확대 예상','관련 국방 AI 스타트업 선제 발굴 — Partner DB 등록 시점']},
+      {cat:'cat-iot',catLabel:'IoT / Connectivity',badge:'sig-bid',badgeLabel:'★ 입찰 주목',ib:'ib-sky',
+       title:'5G 특화망, 피지컬 AI 핵심 인프라로 부상 — 1분기 목표치 절반 조기 달성',
+       bullets:['2026년 1분기에만 최대 9곳 5G 특화망 신규 구축 확정, 연간 목표 120곳 조기 달성 가시화','스마트팩토리 AX 열풍으로 대기업 중심에서 중소 제조업까지 확산, 한국산업단지공단 255억 투입 예정','과기정통부, 4월 중 5G 특화망 활성화 대책 발표 예정 — 수주 환경 우호적'],
+       sources:[{text:'전자신문 2026-03-15',url:'https://www.etnews.com/20260313000245'}],
+       insights:['5G 특화망 구축 파트너(게이트웨이·솔루션사) 확보가 수주 핵심 변수로 부상','산단 내 특화망 확산 → 중소 제조업 대상 회선+솔루션 번들 영업 기회 확대','과기정통부 발표 일정 모니터링, 보조금 연계 RFQ 대비 파트너 풀 사전 점검 필요']},
+      {cat:'cat-mobility',catLabel:'모빌리티',badge:'sig-partner',badgeLabel:'★ 파트너 기회',ib:'ib-green',
+       title:'현대차그룹, 아이데미아와 eSIM 기반 커넥티드카 솔루션 협력 — SDV 전략 가속',
+       bullets:['현대차그룹이 글로벌 보안·식별 솔루션 기업 아이데미아(IDEMIA)와 eSIM 기반 차량 연결 솔루션 구축 협력 발표 (2월 25일)','SDV 전환 가속화 속 eSIM·OTA·차량 데이터 플랫폼 분야 파트너십 수요 본격 증가','기아도 EV·SDV·자율주행·로보틱스 중심 2030년 매출 170조 목표 발표, 49조 투자 계획'],
+       sources:[{text:'더구루 2026-02-25',url:'https://www.theguru.co.kr/news/article.html?no=98421'},{text:'투데이이코노믹 2026-04-09',url:'#'}],
+       insights:['eSIM 플랫폼·차량 연결망 분야 통신사 역할 확대 — 현대차 SDV 공급망 진입 기회','기아 49조 투자 중 커넥티비티·자율주행 비중 주목 — 관련 파트너사 선제 접촉 권장','SDV 분야 Watch/Early 트랙 파트너사 발굴 강화 시점']},
+      {cat:'cat-ai',catLabel:'AI · 딥테크',badge:'sig-early',badgeLabel:'Early Pick',ib:'ib-coral',
+       title:'2월 국내 스타트업 투자 6,612억 — AI·딥테크·피지컬 AI 쏠림 지속',
+       bullets:['2026년 2월 국내 스타트업 투자 54건·6,612억 원, 100억 이상 중 76%가 AI·딥테크 집중','피지컬 AI 급부상 속 모빌리티 강세, LLM 기업도 확장 움직임 — 통신 인프라 수요 동반 증가 예상','2025년 연간 스타트업 투자액 9.8조 원 중 절반이 AI·딥테크 — 2026년 가속화 전망'],
+       sources:[{text:'THE VC 2026-03-02',url:'https://thevc.kr/discussions/korea_startup_funding_2026_02'}],
+       insights:['피지컬 AI·모빌리티 스타트업 투자 급증 → 연결 인프라(5G·MEC·eSIM) 수요 동반 상승','투자 유치 스타트업 = 빠르게 성장할 파트너 후보 — Early 트랙 등록 적기','AI 딥테크 스타트업 중 통신 연동 언급 기업 모니터링 강화 권장']}
+    ],
+    editorPick:{title:'2026년 산업 지도: 정부 전략산업 정책으로 보는 기회 영역',source:'삼일PwC경영연구원 · 2026.01',desc:'국방·AI·에너지를 2026년 주도 산업으로 제시. 통신 인프라가 AI와 에너지 두 축 모두를 연결하는 핵심 레이어로 분석됨.',url:'https://www.pwc.com/kr/ko/insights/samil-insight/samilpwc_industry-outlook2026.pdf'},
+    partners:[
+      {key:null,logo:'WZ',lc:'#185FA5',name:'위즈코어(주)',domain:'IoT · 5G 특화망 솔루션',track:'Active',tbc:'tb-active',telco:'5G 특화망 · 스마트팩토리',contact:'미접촉',dot:'sd-none'},
+      {key:null,logo:'NB',lc:'#0F6E56',name:'네이블(주)',domain:'IoT · 산업용 네트워크',track:'Watch',tbc:'tb-watch',telco:'5G 특화망 · 제조 IoT',contact:'미접촉',dot:'sd-none'},
+      {key:null,logo:'ID',lc:'#993C1D',name:'IDEMIA Korea',domain:'모빌리티 · eSIM 플랫폼',track:'Watch',tbc:'tb-watch',telco:'eSIM · 차량 연결솔루션',contact:'후보 검토',dot:'sd-contact'},
+      {key:null,logo:'PA',lc:'#534AB7',name:'피지컬AI 스타트업 A',domain:'AI · 피지컬 AI · 로봇',track:'Early',tbc:'tb-early',telco:'MEC · 엣지 컴퓨팅',contact:'미접촉',dot:'sd-none'}
+    ]
+  }
 };
 
-function logoEl(domain, fallbackText, fallbackColor, size) {
-  const s = size || 34;
-  if (domain) {
-    return `<img class="logo-img" src="https://logo.clearbit.com/${domain}" onerror="this.parentElement.innerHTML='<span>${fallbackText}</span>';this.parentElement.style.background='${fallbackColor}';" style="width:${s}px;height:${s}px;"/>`;
-  }
-  return `<span>${fallbackText}</span>`;
+function renderBrief(vol) {
+  const b = BRIEFS[vol];
+  if (!b) return;
+  document.getElementById('volBadge').textContent = 'Vol.' + b.vol;
+  document.getElementById('volDate').textContent = b.date + ' · SKT AIoT솔루션팀 내부 배포';
+
+  // Stats
+  document.getElementById('statGrid').innerHTML = b.stats.map(s =>
+    `<div class="stat-box"><div class="stat-label">${s.label}</div><div class="stat-value"${s.color?` style="color:${s.color}"`:''}>${s.value}</div><div class="stat-sub">${s.sub}</div></div>`
+  ).join('');
+
+  // Articles
+  const ibLabel = {
+    'ib-blue': {color:'var(--blue)'},
+    'ib-green': {color:'var(--green)'},
+    'ib-coral': {color:'#993C1D'},
+    'ib-sky': {color:'#185FA5'}
+  };
+  document.getElementById('articleList').innerHTML = b.articles.map(a => `
+    <div class="article-card">
+      <div class="article-inner">
+        <div class="article-body">
+          <span class="cat-tag ${a.cat}">${a.catLabel}</span><span class="signal-badge ${a.badge}">${a.badgeLabel}</span>
+          <h2>${a.title}</h2>
+          <ul class="bullets">${a.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+          <div class="art-url">출처: ${a.sources.map(s=>`<a href="${s.url}" target="_blank">${s.text}</a>`).join(' · ')}</div>
+        </div>
+        <div class="article-aside">
+          <div class="insight-box ${a.ib}">
+            <div class="insight-label" style="color:${(ibLabel[a.ib]||{}).color||'var(--blue)'}">
+              <span style="background:${(ibLabel[a.ib]||{}).color||'var(--blue)'};width:3px;height:10px;display:inline-block;border-radius:2px;margin-right:5px;"></span>Telco 인사이트
+            </div>
+            <ul class="ipts" style="color:${(ibLabel[a.ib]||{}).color||'var(--blue)'}">${a.insights.map(i=>`<li>${i}</li>`).join('')}</ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('') + (b.editorPick ? `
+    <div class="card" style="padding:20px;border-left:3px solid var(--red);border-radius:0 var(--radius) var(--radius) 0;">
+      <div style="font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">에디터 Pick — Lily 직접 선정</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:4px;">${b.editorPick.title}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">${b.editorPick.source}</div>
+      <div style="font-size:13px;color:#374151;line-height:1.6;">${b.editorPick.desc}</div>
+      <div style="margin-top:10px;"><a href="${b.editorPick.url}" target="_blank" style="font-size:12px;">리포트 원문 보기 →</a></div>
+    </div>` : '');
+
+  // Sidebar partners
+  document.getElementById('sidebarCount').textContent = b.partners.length + '개사';
+  document.getElementById('sidebarCards').innerHTML = b.partners.map(p => `
+    <div class="mini-card"${p.key ? ` onclick="openDrawer('${p.key}')"` : ''}>
+      <div class="mini-head">
+        <div class="mini-logo" style="background:${p.lc};">${p.logo}</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px;"><div class="mini-name">${p.name}</div><span class="track-badge ${p.tbc}">${p.track}</span></div>
+          <div class="mini-domain">${p.domain}</div>
+        </div>
+      </div>
+      <div class="mini-kv"><div class="k">Telco 접점</div><div>${p.telco}</div><div class="k">컨택 상태</div><div><span class="status-dot ${p.dot}"></span>${p.contact}</div></div>
+    </div>
+  `).join('');
 }
+
+function switchVol(vol) {
+  renderBrief(parseInt(vol));
+}
+
+function openEditorPick() {
+  const title = prompt('에디터 Pick 제목을 입력하세요:');
+  if (!title) return;
+  const source = prompt('출처 (예: 미디엄 · 2026.05.04):') || '';
+  const desc = prompt('간단한 코멘트:') || '';
+  const vol = parseInt(document.getElementById('volSelect').value);
+  BRIEFS[vol].editorPick = { title, source, desc, url:'#' };
+  renderBrief(vol);
+}
+
+// 초기 렌더링
+renderBrief(1);
+
 
 const PD = {
   aero:{
