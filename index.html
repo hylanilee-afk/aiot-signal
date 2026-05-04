@@ -376,7 +376,7 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
         <div class="pcard-desc">스마트팩토리·로봇 관제에서 온디바이스 AI 협업 가능. 납품 안정성 확인 필요.</div>
       </div>
     </div>
-    <div class="pcard" data-f="모빌리티" data-t="Active">
+    <div class="pcard" data-f="모빌리티" data-t="Active" onclick="openDrawer('mobilityon')">
       <div class="pcard-bar a"></div>
       <div class="pcard-body">
         <div class="pcard-head">
@@ -392,7 +392,7 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
         <div class="pcard-desc">차량관제, 텔레매틱스, SDV 데이터 사업 연계 가능. 현대차 파트너 공동제안 검토.</div>
       </div>
     </div>
-    <div class="pcard" data-f="IoT" data-t="Watch">
+    <div class="pcard" data-f="IoT" data-t="Watch" onclick="openDrawer('sensorwave')">
       <div class="pcard-bar w"></div>
       <div class="pcard-body">
         <div class="pcard-head">
@@ -408,7 +408,7 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
         <div class="pcard-desc">스마트팩토리 LPWA 수요 대응 가능. 납기 안정성 검증 필요.</div>
       </div>
     </div>
-    <div class="pcard" data-f="공공/국방" data-t="Active">
+    <div class="pcard" data-f="공공/국방" data-t="Active" onclick="openDrawer('securitycore')">
       <div class="pcard-bar a"></div>
       <div class="pcard-body">
         <div class="pcard-head">
@@ -424,7 +424,7 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
         <div class="pcard-desc">CC·KCMVP 인증 보유. 국방 보안 요구사항 대응 가능. 공동제안 보안 파트 담당.</div>
       </div>
     </div>
-    <div class="pcard" data-f="에너지" data-t="Early">
+    <div class="pcard" data-f="에너지" data-t="Early" onclick="openDrawer('energygrid')">
       <div class="pcard-bar e"></div>
       <div class="pcard-body">
         <div class="pcard-head">
@@ -462,7 +462,8 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
 <div class="page" id="page-rfq">
   <div class="db-header">
     <div><h1>RFQ Matching</h1><div class="db-sub">RFQ 요구사항을 입력하면 Partner DB에서 적합한 후보를 추천합니다</div></div>
-    <button class="btn-primary">RFQ 파일 업로드</button>
+    <button class="btn-primary" onclick="document.getElementById('rfqFileInput').click()">RFQ 파일 업로드</button>
+    <input type="file" id="rfqFileInput" accept=".txt,.pdf,.docx" style="display:none;" onchange="handleRfqFile(event)"/>
   </div>
   <div class="rfq-layout">
     <div class="panel">
@@ -538,6 +539,45 @@ a{color:var(--blue);text-decoration:none;}a:hover{text-decoration:underline;}
       </div>
       <div class="dsec"><div class="dsec-title">리스크 메모</div><div class="risk-box" id="dRisk"></div></div>
       <div class="dsec"><div class="dsec-title">출처</div><div class="src-row" id="dSrc"></div></div>
+      <div id="dMemoHistory" class="dsec" style="display:none;"></div>
+
+      <!-- 편집 버튼 (보기 모드) -->
+      <div id="dViewActions" style="display:flex;justify-content:flex-end;">
+        <button class="btn-outline" onclick="enterEditMode()" style="font-size:12px;">편집</button>
+      </div>
+
+      <!-- 편집 모드 -->
+      <div id="dEditMode" style="display:none;">
+        <div style="border-top:1px solid var(--line);margin:16px 0;"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;">편집 모드</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+          <div>
+            <label class="modal-label" style="margin-bottom:4px;display:block;">담당자</label>
+            <input class="modal-input" id="dEditMgr" placeholder="담당자 이름"/>
+          </div>
+          <div>
+            <label class="modal-label" style="margin-bottom:4px;display:block;">트랙 변경</label>
+            <select class="modal-input" id="dEditTrack">
+              <option value="Active">Active</option>
+              <option value="Watch">Watch</option>
+              <option value="Early">Early</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label class="modal-label" style="margin-bottom:4px;display:block;">리스크 메모</label>
+          <textarea class="modal-textarea" id="dEditRisk" placeholder="납기·보안인증·규모 등 리스크 기재" style="min-height:60px;"></textarea>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="modal-label" style="margin-bottom:4px;display:block;">컨택 이력 메모</label>
+          <textarea class="modal-textarea" id="dEditMemo" placeholder="미팅 결과, 담당자 연락처, 다음 액션 등 자유롭게 기재" style="min-height:80px;"></textarea>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">저장 시 날짜+담당자 자동 기록</div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn-outline" onclick="exitEditMode()">취소</button>
+          <button class="btn-primary" onclick="saveDrawerEdit()">저장</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -846,7 +886,100 @@ function switchVol(vol) {
   renderBrief(parseInt(vol));
 }
 
-// Partner DB 통계 자동 집계
+// Drawer 편집 저장
+let currentDrawerKey = null;
+
+function saveDrawerEdit() {
+  const k = currentDrawerKey;
+  if(!k || !PD[k]) return;
+  const d = PD[k];
+  const mgr = document.getElementById('dEditMgr').value.trim() || d.mgr;
+  const track = document.getElementById('dEditTrack').value;
+  const risk = document.getElementById('dEditRisk').value.trim();
+  const memo = document.getElementById('dEditMemo').value.trim();
+
+  d.mgr = mgr;
+  d.risk = risk || d.risk;
+
+  // 트랙 변경
+  const trackMap = {Active:'tb-active',Watch:'tb-watch',Early:'tb-early'};
+  d.track = track;
+
+  // 컨택 이력 메모 — 날짜+담당자 자동 기록
+  if(memo) {
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    const entry = `[${dateStr} · ${mgr}] ${memo}`;
+    d.memoHistory = d.memoHistory || [];
+    d.memoHistory.unshift(entry);
+  }
+
+  d.upd = new Date().toISOString().split('T')[0];
+
+  // Drawer 새로고침 (보기 모드로 돌아감)
+  openDrawer(k);
+  showToast('저장 완료');
+}
+
+// RFQ 파일 업로드 파싱
+function handleRfqFile(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const textarea = document.getElementById('rfqInput');
+  const info = document.createElement('div');
+
+  if(ext === 'txt') {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      textarea.value = ev.target.result;
+      autoExtractTags(ev.target.result);
+    };
+    reader.readAsText(file, 'utf-8');
+  } else if(ext === 'pdf') {
+    // PDF는 서버 없이 텍스트 추출이 제한적 — 파일명 + 안내 표시
+    textarea.value = `[PDF 업로드: ${file.name}]\n\nNode.js 서버 연동 전까지 PDF 텍스트 자동 추출이 제한됩니다.\nRFQ 핵심 요구사항을 직접 아래에 붙여넣기 해주세요.\n\n예시:\n- 분야: 공공/국방 드론 관제\n- 필요 기술: AI 영상분석, Private 5G\n- 필요 인증: CC, KCMVP\n- 납기: 2026년 12월`;
+    showToast(`${file.name} 업로드됨 — PDF는 직접 내용 입력이 필요합니다`);
+  } else if(ext === 'docx') {
+    textarea.value = `[DOCX 업로드: ${file.name}]\n\nNode.js 서버 연동 전까지 DOCX 텍스트 자동 추출이 제한됩니다.\nRFQ 핵심 요구사항을 직접 붙여넣기 해주세요.`;
+    showToast(`${file.name} 업로드됨 — DOCX는 직접 내용 입력이 필요합니다`);
+  }
+  e.target.value = ''; // 같은 파일 재업로드 허용
+}
+
+// RFQ 텍스트에서 태그 자동 추출
+function autoExtractTags(text) {
+  const keywords = {
+    '#AI 영상분석': /영상분석|VLM|비전/i,
+    '#Private 5G': /Private.?5G|전용망|특화망/i,
+    '#드론관제': /드론|UAV|무인기/i,
+    '#보안망': /보안|CC인증|KCMVP/i,
+    '#IoT게이트웨이': /게이트웨이|IoT|센서/i,
+    '#eSIM': /eSIM|차량연결|SDV/i,
+    '#MEC': /MEC|엣지컴퓨팅|엣지AI/i,
+    '#LPWA': /LPWA|NB-IoT|LTE-M/i,
+  };
+  const matched = Object.entries(keywords).filter(([,re])=>re.test(text)).map(([k])=>k);
+  if(matched.length) {
+    document.getElementById('rfqTags').innerHTML = matched.map(t=>
+      `<span class="rfq-tag">${t}</span>`
+    ).join('');
+    showToast(`태그 ${matched.length}개 자동 추출됨`);
+  }
+}
+
+// 토스트 메시지
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast';
+    t.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#0F1117;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:opacity .2s;';
+    document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.style.opacity='0',2500);
+}
+
+
 function updateDbStats() {
   const cards = document.querySelectorAll('#gridView .pcard');
   let total=0, active=0, watch=0, early=0;
@@ -891,6 +1024,54 @@ const PD = {
     fit:'중간 ★★★★☆',contact:'후보 검토',mgr:'Lily',upd:'2026-05-04',
     risk:'스타트업 특성상 납품 안정성·양산 대응력 확인 필요. PoC형 또는 컨소시엄 구조 권장.',
     src:['벤처스퀘어 2026-04-29','회사 홈페이지','LinkedIn']
+  },
+  mobilityon:{
+    logo:'MO',lc:'#993C1D',domain:null,name:'모빌리티온(주)',sub:'모빌리티 · SDV 플랫폼 · 차량관제',
+    track:'Active',fields:['모빌리티'],
+    ov:[['설립연도','2017년'],['대표자','김도현'],['규모','임직원 85명 · 매출 200억'],['사업분야','SDV 플랫폼, 차량관제, 텔레매틱스'],['필요 Connectivity','eSIM · IoT 연결관리 · LTE/5G'],['협업 방식','솔루션 공급 · 공동제안'],['SKT 접점','기존 미팅']],
+    st:'차량 데이터 플랫폼과 텔레매틱스 솔루션을 자체 개발, SDV 전환 대응 역량 보유.',
+    sp:'현대차 SDV 파트너 모집 공고 대응 가능 — eSIM 연결관리 분야 공동제안 여지.',
+    sh:['2026 · 현대차 SDV 파트너 협력사 1차 후보 선정','2025 · 차량관제 FMS 플랫폼 물류사 3곳 납품','2024 · KT와 텔레매틱스 PoC 진행 (현재 종료)'],
+    ins:['eSIM 플랫폼 + 차량 연결관리 번들 공동제안 — 현대차 SDV 채널 진입 기회','KT와 기존 PoC 종료 → SKT 전환 제안 가능한 시점','차량 데이터 전송망 LTE/5G 회선 번들 계약 구조로 접근'],
+    fit:'높음 ★★★★☆',contact:'기존 미팅',mgr:'Lily',upd:'2026-05-02',
+    risk:'KT 기존 관계 있어 전환 설득 필요. 납품 규모 대비 대응 인력 부족 가능성 확인 요망.',
+    src:['오토헤럴드 2026-05-01','회사 홈페이지','나라장터 납품 이력']
+  },
+  sensorwave:{
+    logo:'SW',lc:'#185FA5',domain:null,name:'센서웨이브(주)',sub:'IoT · 산업용 센서 · IoT 게이트웨이',
+    track:'Watch',fields:['IoT'],
+    ov:[['설립연도','2019년'],['대표자','이재원'],['규모','임직원 48명 · 매출 80억'],['사업분야','산업용 IoT 센서, 게이트웨이, LPWA 솔루션'],['필요 Connectivity','LPWA · NB-IoT · LTE-M · 5G 특화망'],['협업 방식','단말 공급 · 솔루션 공급'],['SKT 접점','미접촉']],
+    st:'NB-IoT·LTE-M 기반 산업용 게이트웨이와 센서 모듈 자체 개발, 스마트팩토리 현장 납품 이력 보유.',
+    sp:'5G 특화망 확산 수요에 대응 가능한 게이트웨이 라인업 보유 — LPWA 번들 제안 적합.',
+    sh:['2026 · 위즈코어와 공동으로 5G 특화망 연동 게이트웨이 인증 진행 중','2025 · 중소 제조업 스마트팩토리 게이트웨이 공급 30개사','2024 · 과기정통부 IoT 실증사업 참여'],
+    ins:['LPWA 회선 + 게이트웨이 번들 제안 — 중소 제조업 공략 최적','납기 안정성이 수주 핵심 — 공급망 검증 후 Active 트랙 승급 검토','스마트팩토리 보조금 시즌 전 선제 컨택 권장'],
+    fit:'중간 ★★★☆☆',contact:'미접촉',mgr:'Lily',upd:'2026-04-28',
+    risk:'납기 지연 이력 있음 (2025년 Q3 공급 지연 사례). 대량 수주 시 대응 가능 여부 확인 필요.',
+    src:['전자신문 2026-03-15','IoT조선 2026-04-27','회사 홈페이지']
+  },
+  securitycore:{
+    logo:'SC',lc:'#534AB7',domain:null,name:'시큐리티코어(주)',sub:'보안관제 · Zero Trust · 국방 보안',
+    track:'Active',fields:['공공/국방'],
+    ov:[['설립연도','2015년'],['대표자','박준형'],['규모','임직원 95명 · 매출 150억'],['사업분야','Zero Trust 보안관제, 망분리, 국방 보안솔루션'],['필요 Connectivity','보안망 · Private 5G · 전용회선'],['협업 방식','솔루션 공급 · 공동제안'],['SKT 접점','검토 중']],
+    st:'CC·KCMVP 인증 보유, 국방·공공기관 대상 Zero Trust 기반 보안관제 솔루션 공급.',
+    sp:'국방 Private 5G 입찰 시 필수 보안 요구사항(CC, KCMVP) 즉시 대응 가능.',
+    sh:['2026 · 국방부 사이버보안 솔루션 2차 납품 계약 체결','2025 · 공공기관 망분리 사업 15건 수주','2024 · CC 인증 신규 취득, KCMVP 갱신'],
+    ins:['국방 Private 5G 입찰 필수 보안 파트너 — 단독 보다 패키지 제안 구조 권장','보안망 + 통신 회선 번들 제안으로 차별화 가능','검토 단계 진행 중 — 빠른 의사결정 필요'],
+    fit:'높음 ★★★★☆',contact:'검토 중',mgr:'Lily',upd:'2026-05-01',
+    risk:'특정 SI 업체와 독점 계약 여부 확인 필요. 경쟁사(KT) 와도 협업 이력 있어 확인 요망.',
+    src:['방위사업청 공고','회사 홈페이지','나라장터 납품 이력']
+  },
+  energygrid:{
+    logo:'EG',lc:'#854F0B',domain:null,name:'에너지그리드(주)',sub:'에너지 · 스마트미터 · ESS 관제',
+    track:'Early',fields:['에너지'],
+    ov:[['설립연도','2016년'],['대표자','최민수'],['규모','임직원 62명 · 매출 110억'],['사업분야','스마트미터, ESS 관제, 에너지 IoT 플랫폼'],['필요 Connectivity','LPWA · NB-IoT · 전용회선'],['협업 방식','솔루션 공급 · 데이터 플랫폼'],['SKT 접점','미접촉']],
+    st:'스마트미터 AMI 시스템과 ESS 원격관제 플랫폼 자체 개발, 한전 협력사 등록.',
+    sp:'에너지 IoT 회선 수요와 직접 연결 — 중장기 LPWA 대량 회선 계약 가능성.',
+    sh:['2026 · 한국전력 스마트미터 AMI 2차 사업 협력사 선정','2025 · ESS 원격관제 플랫폼 발전소 3곳 납품','2024 · 과기정통부 에너지 IoT 실증사업 참여'],
+    ins:['한전 AMI 사업 확대 → LPWA/NB-IoT 회선 대량 수요 동반 상승','에너지 IoT 분야 중장기 파트너로 선제 관계 형성 권장','지금은 Early 트랙 — 한전 사업 확대 시점에 Active 승급 검토'],
+    fit:'낮음 ★★★☆☆',contact:'미접촉',mgr:'Lily',upd:'2026-04-28',
+    risk:'에너지 분야 규제 복잡성 높음. 한전 의존도 높아 독립 사업 확장성 제한적.',
+    src:['한국전력 협력사 공고','회사 홈페이지','과기정통부 보도자료']
   }
 };
 const SOPTS=['미접촉','접촉','미팅','검토 중','보류'];
@@ -898,6 +1079,7 @@ const TBC={Active:'tb-active',Watch:'tb-watch',Early:'tb-early'};
 
 function openDrawer(k){
   const d=PD[k];if(!d)return;
+  currentDrawerKey=k;
   const dlogoEl=document.getElementById('dLogo');
   dlogoEl.style.background=d.lc;
   if(d.domain){
@@ -927,7 +1109,28 @@ function openDrawer(k){
     SOPTS.map(s=>`<button class="sopt${s===d.contact?' sel':''}" onclick="selStatus(this,'${k}','${s}')">${s}</button>`).join('');
   document.getElementById('dRisk').textContent=d.risk;
   document.getElementById('dSrc').innerHTML=d.src.map(s=>`<a href="#" class="source-link" style="font-size:12px;color:var(--blue);">${s}</a>`).join('');
+
+  // 편집 필드 초기값 채우기
+  document.getElementById('dEditMgr').value = d.mgr || '';
+  document.getElementById('dEditTrack').value = d.track || 'Active';
+  document.getElementById('dEditRisk').value = d.risk || '';
+  document.getElementById('dEditMemo').value = '';
+
+  // 컨택 이력 히스토리 표시
+  const histSection = document.getElementById('dMemoHistory');
+  if(histSection) {
+    if(d.memoHistory && d.memoHistory.length) {
+      histSection.style.display='block';
+      histSection.innerHTML = `<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">컨택 이력</div>` +
+        d.memoHistory.map(m=>`<div style="font-size:12px;color:#374151;padding:8px 10px;background:#F9FAFB;border-radius:6px;margin-bottom:4px;line-height:1.5;">${m}</div>`).join('');
+    } else {
+      histSection.style.display='none';
+    }
+  }
+
   document.getElementById('drawer').classList.add('open');
+  // 항상 보기 모드로 시작
+  exitEditMode();
 }
 // 실제 회사 도메인이 있으면 카드 로고도 자동 교체
 // 예시: hyundai.com, skt.co.kr 등 실제 등록 시 domain 필드에 추가하면 자동 적용
@@ -945,8 +1148,17 @@ function applyCardLogos() {
 }
 document.addEventListener('DOMContentLoaded', applyCardLogos);
 
+function enterEditMode() {
+  document.getElementById('dViewActions').style.display = 'none';
+  document.getElementById('dEditMode').style.display = 'block';
+}
+
+function exitEditMode() {
+  document.getElementById('dEditMode').style.display = 'none';
+  document.getElementById('dViewActions').style.display = 'flex';
+}
+
 function selStatus(btn,k,s){
-  PD[k].contact=s;
   document.querySelectorAll('#dStatus .sopt').forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
 }
